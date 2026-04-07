@@ -1,0 +1,71 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { Icon } from "astro-icon/components";
+
+const navItems = [
+  { label: "About", href: "#" },
+  { label: "Gallery", href: "#" },
+  { label: "Contact", href: "#" },
+];
+---
+
+<Layout>
+  <nav class="container mx-auto px-4 sm:px-6 lg:px-0 py-4">
+    <div class="flex items-center justify-between">
+      <h2 class="uppercase text-sm sm:text-base md:text-lg">
+        Stephen Mokogwu
+      </h2>
+
+      <!-- Desktop Menu -->
+      <ul class="hidden lg:flex uppercase gap-6 text-sm">
+        {navItems.map((item) => (
+          <li>
+            <a href={item.href} class="hover:opacity-70 transition">
+              {item.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+
+      <!-- Mobile Toggle Button -->
+      <button
+        id="menu-btn"
+        class="lg:hidden p-2 rounded-md"
+        aria-label="Toggle menu"
+      >
+        <Icon name="hugeicons:menu-03" class="w-6 h-6 open-icon" />
+        <Icon name="hugeicons:cancel-01" class="w-6 h-6 close-icon hidden" />
+      </button>
+    </div>
+
+    <!-- Mobile Menu -->
+    <ul
+      id="mobile-menu"
+      class="hidden flex-col gap-4 uppercase mt-4 lg:hidden"
+    >
+      {navItems.map((item) => (
+        <li>
+          <a href={item.href} class="block py-2">
+            {item.label}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </nav>
+
+  <script>
+    const menuBtn = document.getElementById("menu-btn");
+    const mobileMenu = document.getElementById("mobile-menu");
+    const openIcon = document.querySelector(".open-icon");
+    const closeIcon = document.querySelector(".close-icon");
+
+    menuBtn?.addEventListener("click", () => {
+      mobileMenu?.classList.toggle("hidden");
+      mobileMenu?.classList.toggle("flex");
+
+      // Toggle the icons
+      openIcon?.classList.toggle("hidden");
+    closeIcon?.classList.toggle("hidden");
+    });
+  </script>
+</Layout>
