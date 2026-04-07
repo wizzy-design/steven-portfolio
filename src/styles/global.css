@@ -1,1 +1,34 @@
 @import "tailwindcss";
+
+/* Mazzard H - High x-height */
+@font-face {
+  font-family: "Mazzard H";
+  src: url("../assets/fonts/Mazzard/MazzardH-Bold.otf") format("opentype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Mazzard M - Medium x-height */
+@font-face {
+  font-family: "Mazzard M";
+  src: url("../assets/fonts/Mazzard/MazzardM-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Mazzard L - Low x-height */
+@font-face {
+  font-family: "Mazzard L";
+  src: url("../assets/fonts/Mazzard/MazzardL-Light.otf") format("opentype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@theme {
+  --font-mazzard-h: "Mazzard H", sans-serif;
+  --font-mazzard-m: "Mazzard M", sans-serif;
+  --font-mazzard-l: "Mazzard L", sans-serif;
+}
