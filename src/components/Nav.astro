@@ -10,21 +10,23 @@ const navItems = [
 ---
 
 <Layout>
-  <nav class="container mx-auto px-4 sm:px-6 lg:px-0 py-4">
+  <nav class="container mx-auto px-4 sm:px-6 lg:px-0 py-4 font-mazzard-m">
     <div class="flex items-center justify-between">
       <h2 class="uppercase invisible text-sm sm:text-base md:text-lg">
-        Stephen Mokogwu
+        Steven Mokogwu
       </h2>
 
       <!-- Desktop Menu -->
       <ul class="hidden lg:flex uppercase gap-6 text-sm">
-        {navItems.map((item) => (
-          <li>
-            <a href={item.href} class="hover:opacity-70 transition">
-              {item.label}
-            </a>
-          </li>
-        ))}
+        {
+          navItems.map((item) => (
+            <li>
+              <a href={item.href} class="hover:opacity-70 transition">
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
       </ul>
 
       <!-- Mobile Toggle Button -->
@@ -39,17 +41,16 @@ const navItems = [
     </div>
 
     <!-- Mobile Menu -->
-    <ul
-      id="mobile-menu"
-      class="hidden flex-col gap-4 uppercase mt-4 lg:hidden"
-    >
-      {navItems.map((item) => (
-        <li>
-          <a href={item.href} class="block py-2">
-            {item.label}
-          </a>
-        </li>
-      ))}
+    <ul id="mobile-menu" class="hidden flex-col gap-4 uppercase mt-4 lg:hidden">
+      {
+        navItems.map((item) => (
+          <li>
+            <a href={item.href} class="block py-2">
+              {item.label}
+            </a>
+          </li>
+        ))
+      }
     </ul>
   </nav>
 
@@ -65,7 +66,7 @@ const navItems = [
 
       // Toggle the icons
       openIcon?.classList.toggle("hidden");
-    closeIcon?.classList.toggle("hidden");
+      closeIcon?.classList.toggle("hidden");
     });
   </script>
 </Layout>

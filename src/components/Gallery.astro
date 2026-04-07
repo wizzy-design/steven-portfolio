@@ -1,0 +1,87 @@
+---
+import { Image } from "astro:assets";
+import Layout from "../layouts/Layout.astro";
+
+// Dynamically import all images from the assets folder
+const images = Object.values(
+  import.meta.glob<{ default: ImageMetadata }>(
+    "../assets/*.{png,jpg,jpeg,webp}",
+    { eager: true },
+  ),
+);
+
+// Helper to clean up filenames for display
+const formatName = (path: string) => {
+  const filename = path.split("/").pop()?.split(".")[0] || "";
+  return filename
+    .split("-")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+};
+---
+
+<Layout>
+  <section class="mx-auto px-4 py-16 container lg:px-0">
+    <div class="mb-10">
+      <h2
+        class="text-3xl font-mazzard-h font-bold uppercase tracking-widest text-neutral-900"
+      >
+        The Gallery <span
+          class="text-neutral-400 text-sm font-mono ml-2 hidden md:inline"
+          >/ {images.length} PIECES</span
+        >
+      </h2>
+    </div>
+
+    <div
+      class="masonry-grid [column-fill:balance] columns-1 md:columns-2 lg:columns-3 xl:columns-4 gap-1 space-y-1"
+    >
+      {
+        images.map((img) => {
+          const name = formatName(img.default.src);
+          return (
+            <div class="gallery-item cursor-crosshair group relative break-inside-avoid opacity-0 translate-y-8 overflow-hidden">
+              <Image
+                src={img.default}
+                alt={name}
+                class="w-full h-auto object-cover transition-all duration-700 ease-out scale-100 group-hover:scale-105"
+              />
+              <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-4">
+                <span class="text-white font-mazzard-m text-lg font-medium tracking-wide uppercase text-center transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                  {name}
+                </span>
+              </div>
+            </div>
+          );
+        })
+      }
+    </div>
+  </section>
+</Layout>
+
+<script>
+  import gsap from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+  // Register ScrollTrigger plugin
+  gsap.registerPlugin(ScrollTrigger);
+
+  // Staggered entry animation for gallery items
+  const animateEntrance = () => {
+    gsap.to(".gallery-item", {
+      opacity: 1,
+      y: 0,
+      duration: 0.5,
+      stagger: 0.08,
+      ease: "expo.in",
+      scrollTrigger: {
+        trigger: ".masonry-grid",
+        start: "top 85%",
+        toggleActions: "play none none none",
+      },
+    });
+  };
+
+  // Run animation after content loaded
+  window.addEventListener("load", animateEntrance);
+</script>
