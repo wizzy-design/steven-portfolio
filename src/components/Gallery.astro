@@ -1,6 +1,6 @@
 ---
 import { Image } from "astro:assets";
-import Layout from "../layouts/Layout.astro";
+import ArtDetail from "./ArtDetail.astro";
 
 // Dynamically import all images from the assets folder
 const images = Object.values(
@@ -10,7 +10,7 @@ const images = Object.values(
   ),
 );
 
-// Helper to clean up filenames for display
+// Helpers to clean up filenames and create slugs
 const formatName = (path: string) => {
   const filename = path.split("/").pop()?.split(".")[0] || "";
   return filename
@@ -18,62 +18,73 @@ const formatName = (path: string) => {
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
 };
+
+const createSlug = (path: string) => {
+  return path.split("/").pop()?.split(".")[0] || "";
+};
 ---
 
-<Layout>
-  <section class="mx-auto px-4 py-16 container lg:px-0">
-    <div class="mb-10">
-      <h2
-        class="text-3xl font-mazzard-h font-bold uppercase tracking-widest text-neutral-900"
-      >
-        The Gallery <span
-          class="text-neutral-400 text-sm font-mono ml-2 hidden md:inline"
-          >/ {images.length} PIECES</span
-        >
-      </h2>
-    </div>
-
-    <div
-      class="masonry-grid [column-fill:balance] columns-1 md:columns-2 lg:columns-3 xl:columns-4 gap-1 space-y-1"
+<section class="container mx-auto px-4 py-16 lg:px-0">
+  <div class="mb-10">
+    <h2
+      class="font-mazzard-h text-3xl font-bold uppercase tracking-widest text-neutral-900"
     >
-      {
-        images.map((img) => {
-          const name = formatName(img.default.src);
-          return (
-            <div class="gallery-item cursor-crosshair group relative break-inside-avoid opacity-0 translate-y-8 overflow-hidden">
-              <Image
-                src={img.default}
-                alt={name}
-                class="w-full h-auto object-cover transition-all duration-700 ease-out scale-100 group-hover:scale-105"
-              />
-              <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-4">
-                <span class="text-white font-mazzard-m text-lg font-medium tracking-wide uppercase text-center transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                  {name}
-                </span>
-              </div>
+      The Gallery <span
+        class="ml-2 hidden font-mono text-sm text-neutral-400 md:inline"
+        >/ {images.length} PIECES</span
+      >
+    </h2>
+  </div>
+
+  <div
+    class="masonry-grid columns-1 gap-1 space-y-1 [column-fill:balance] md:columns-2 lg:columns-3 xl:columns-4"
+  >
+    {
+      images.map((img, index) => {
+        const name = formatName(img.default.src);
+        const slug = createSlug(img.default.src);
+        return (
+          <div
+            class="gallery-item group relative translate-y-8 cursor-crosshair overflow-hidden break-inside-avoid opacity-0 transition-opacity duration-300"
+            data-index={index}
+            data-name={name}
+            data-slug={slug}
+          >
+            <Image
+              src={img.default}
+              alt={name}
+              class="h-auto w-full scale-100 object-cover transition-all duration-700 ease-out group-hover:scale-105"
+              loading={index < 4 ? "eager" : "lazy"}
+            />
+            <div class="absolute inset-0 flex items-center justify-center bg-black/40 p-4 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+              <span class="translate-y-4 text-center font-mazzard-m text-lg font-medium uppercase tracking-wide text-white transition-transform duration-500 group-hover:translate-y-0">
+                View Detail
+              </span>
             </div>
-          );
-        })
-      }
-    </div>
-  </section>
-</Layout>
+          </div>
+        );
+      })
+    }
+  </div>
+</section>
+
+<!-- Abstracted Detail View -->
+<ArtDetail />
 
 <script>
   import gsap from "gsap";
   import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-  // Register ScrollTrigger plugin
   gsap.registerPlugin(ScrollTrigger);
 
-  // Staggered entry animation for gallery items
+  // Staggered entry animation
   const animateEntrance = () => {
     gsap.to(".gallery-item", {
       opacity: 1,
       y: 0,
-      duration: 0.5,
-      stagger: 0.08,
-      ease: "expo.in",
+      duration: 0.8,
+      stagger: 0.1,
+      ease: "power3.out",
       scrollTrigger: {
         trigger: ".masonry-grid",
         start: "top 85%",
@@ -82,6 +93,160 @@ const formatName = (path: string) => {
     });
   };
 
-  // Run animation after content loaded
-  window.addEventListener("load", animateEntrance);
+  // Detail View Logic
+  const overlay = document.getElementById("detail-overlay");
+  const overlayBg = document.getElementById("overlay-bg");
+  const bgGradient = document.getElementById("detail-bg-gradient");
+  const bgImg = document.getElementById("detail-bg-img") as HTMLImageElement;
+  const detailImage = document.getElementById("detail-image") as HTMLImageElement;
+  const detailTitle = document.getElementById("detail-title");
+  const detailContent = document.getElementById("detail-content");
+  const closeBtn = document.getElementById("close-detail");
+  const galleryItems = document.querySelectorAll(".gallery-item");
+
+  let isAnimating = false;
+
+  const updateURL = (slug: string | null) => {
+    const url = new URL(window.location.href);
+    if (slug) {
+      url.searchParams.set("art", slug);
+    } else {
+      url.searchParams.delete("art");
+    }
+    window.history.pushState({ slug }, "", url);
+  };
+
+  const openDetail = (item: Element, instant = false) => {
+    if (isAnimating) return;
+    if (!instant) isAnimating = true;
+
+    const gridImg = item.querySelector("img") as HTMLImageElement;
+    const name = item.getAttribute("data-name");
+    const src = gridImg.src;
+    const slug = item.getAttribute("data-slug");
+    const rect = gridImg.getBoundingClientRect();
+
+    updateURL(slug);
+
+    // Prepare content
+    if (detailImage) detailImage.src = src;
+    if (detailTitle) detailTitle.textContent = name;
+
+    // Set matching background gradient img
+    if (bgImg) bgImg.src = src;
+
+    if (instant) {
+      gsap.set(overlay, { pointerEvents: "auto", opacity: 1 });
+      gsap.set(detailContent, { opacity: 1, x: 0 });
+      gsap.set(detailImage, { opacity: 1 });
+      gsap.set(bgGradient, { opacity: 0.8, x: 0 });
+      return;
+    }
+
+    // High-performance transition
+    const dummyImage = gridImg.cloneNode() as HTMLImageElement;
+    document.body.appendChild(dummyImage);
+    
+    gsap.set(dummyImage, {
+      position: "fixed",
+      top: rect.top,
+      left: rect.left,
+      width: rect.width,
+      height: rect.height,
+      zIndex: 100,
+      objectFit: "cover",
+      pointerEvents: "none"
+    });
+
+    gsap.set(overlay, { pointerEvents: "auto", opacity: 1 });
+    gsap.fromTo(overlayBg, { opacity: 0 }, { opacity: 1, duration: 0.4 });
+    gsap.set(detailImage, { opacity: 0 });
+    gsap.set(detailContent, { opacity: 0, x: 50 });
+    gsap.set(bgGradient, { opacity: 0, x: 0 });
+
+    const targetRect = detailImage!.getBoundingClientRect();
+
+    const tl = gsap.timeline({
+      onComplete: () => {
+        isAnimating = false;
+      }
+    });
+
+    tl.to(dummyImage, {
+      top: targetRect.top,
+      left: targetRect.left,
+      width: targetRect.width,
+      height: targetRect.height,
+      duration: 0.7,
+      ease: "expo.inOut"
+    })
+    .set(detailImage, { opacity: 1 })
+    .to(detailContent, {
+      opacity: 1,
+      x: 0,
+      duration: 0.4,
+      ease: "power2.out"
+    }, "-=0.2")
+    .to(bgGradient, {
+      opacity: 0.8,
+      duration: 1.2,
+      ease: "power2.inOut"
+    }, "-=0.8")
+    .call(() => {
+      dummyImage.remove();
+    }, [], "-=0.1");
+  };
+
+  const closeDetail = () => {
+    if (isAnimating) return;
+    isAnimating = true;
+
+    updateURL(null);
+
+    const tl = gsap.timeline({
+      onComplete: () => {
+        gsap.set(overlay, { pointerEvents: "none", opacity: 0 });
+        isAnimating = false;
+      }
+    });
+
+    tl.to(detailContent, { opacity: 0, x: 20, duration: 0.3 })
+      .to(bgGradient, { opacity: 0, duration: 0.3 }, "-=0.3")
+      .to(overlayBg, { opacity: 0, duration: 0.4 }, "-=0.1")
+      .to(detailImage, { opacity: 0, scale: 0.98, duration: 0.3 }, "-=0.3");
+  };
+
+  galleryItems.forEach((item) => {
+    item.addEventListener("click", () => openDetail(item));
+  });
+
+  closeBtn?.addEventListener("click", closeDetail);
+  overlayBg?.addEventListener("click", closeDetail);
+
+  // Check URL on load
+  const handleUrlOnLoad = () => {
+    const params = new URLSearchParams(window.location.search);
+    const slug = params.get("art");
+    if (slug) {
+      const target = document.querySelector(`[data-slug="${slug}"]`);
+      if (target) {
+        setTimeout(() => openDetail(target, true), 100);
+      }
+    }
+  };
+
+  window.addEventListener("load", () => {
+    animateEntrance();
+    handleUrlOnLoad();
+  });
+
+  // Handle back/forward buttons
+  window.addEventListener("popstate", (e) => {
+    if (e.state && e.state.slug) {
+      const target = document.querySelector(`[data-slug="${e.state.slug}"]`);
+      if (target) openDetail(target, true);
+    } else {
+      closeDetail();
+    }
+  });
 </script>
