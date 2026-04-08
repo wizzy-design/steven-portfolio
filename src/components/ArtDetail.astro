@@ -1,0 +1,84 @@
+---
+import { Icon } from "astro-icon/components";
+---
+
+<div
+  id="detail-overlay"
+  class="pointer-events-none fixed inset-0 z-50 opacity-0"
+>
+  <!-- Dynamic Gradient Background -->
+  <div
+    id="detail-bg-gradient"
+    class="translate-x-0! absolute inset-0 opacity-0 overflow-hidden pointer-events-none"
+  >
+    <img
+      id="detail-bg-img"
+      src=""
+      alt=""
+      class="absolute inset-0 w-full h-full object-cover scale-110 blur-[60px] saturate-200 brightness-110"
+    />
+  </div>
+
+  <!-- Main Backdrop -->
+  <div id="overlay-bg" class="absolute inset-0 cursor-pointer bg-white/70">
+  </div>
+
+  <!-- Close button — Fixed & Enhanced for visibility -->
+  <button
+    id="close-detail"
+    class="pointer-events-auto fixed right-4 top-4 z-60 flex h-10 w-10 items-center justify-center rounded-full bg-white/40 text-neutral-950 backdrop-blur-xl transition-all duration-300 hover:rotate-90 hover:scale-110 md:right-10 md:top-10 md:h-12 md:w-12 md:bg-transparent md:backdrop-blur-none cursor-pointer"
+    aria-label="Close"
+  >
+    <Icon name="hugeicons:cancel-01" size={28} class="md:w-10 md:h-10" />
+  </button>
+
+  <!-- Scrollable content wrapper -->
+  <div class="relative z-10 h-full w-full overflow-y-auto pt-18 md:pt-0">
+    <div
+      class="mx-auto flex min-h-full w-full flex-col items-center justify-center lg:grid lg:grid-cols-2 lg:min-h-screen"
+    >
+      <!-- Image Container -->
+      <div
+        id="detail-image-container"
+        class="flex w-full items-center justify-center lg:h-full lg:sticky lg:top-0"
+      >
+        <img
+          id="detail-image"
+          src=""
+          alt=""
+          class="max-h-[60vh] w-auto max-w-full rounded-sm object-contain shadow-2xl lg:max-h-[85vh]"
+          decoding="async"
+        />
+      </div>
+
+      <!-- Content Container -->
+      <div
+        id="detail-content"
+        class="flex w-full flex-col justify-center space-y-8 pt-8 pb-12 lg:pt-0 lg:pb-0 px-6 md:px-0"
+      >
+        <div class="space-y-4">
+          <h3
+            id="detail-title"
+            class="font-mazzard-h text-4xl font-bold leading-tight md:text-6xl lg:text-8xl"
+          >
+          </h3>
+          <div class="flex gap-4 font-mono text-sm uppercase text-neutral-500">
+            <span id="detail-year">2024</span>
+          </div>
+        </div>
+
+        <div class="h-px w-24 bg-neutral-900"></div>
+
+        <div
+          class="max-w-md space-y-6 font-mazzard-m text-base leading-relaxed text-neutral-800 md:text-lg"
+        >
+          <p>
+            An exploration of form, light, and the intersection of traditional
+            visual arts with modern digital techniques. This piece represents a
+            pivotal moment in my creative process.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
